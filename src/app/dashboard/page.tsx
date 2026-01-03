@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 import { useForm } from 'react-hook-form';
 import type { TranscriptSegment, Language } from '@/types/types';
 
@@ -21,7 +21,6 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
     defaultValues: {
@@ -42,7 +41,7 @@ export default function DashboardPage() {
       }
     };
     getUser();
-  }, [supabase.auth]);
+  }, []);
 
   // Dark mode toggle
   useEffect(() => {

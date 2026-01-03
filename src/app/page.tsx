@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import type { TranscriptSegment, Language } from '@/types/types';
 
@@ -12,6 +13,7 @@ interface FormData {
 
 // test
 export default function Home() {
+  const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptSegment[]>([]);
   const [transcriptText, setTranscriptText] = useState('');
@@ -28,6 +30,11 @@ export default function Home() {
   });
 
   const plainText = watch('plainText');
+
+  // Redirect to login page
+  useEffect(() => {
+    router.replace('/login');
+  }, [router]);
 
   // Dark mode toggle
   useEffect(() => {
