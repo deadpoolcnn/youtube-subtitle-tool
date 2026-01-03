@@ -44,7 +44,7 @@ export default function LoginPage() {
 
       if (!data.session) {
         console.error('No session in response');
-        throw new Error('登录成功但未获取到会话信息');
+        throw new Error('Login successful but no session obtained');
       }
 
       console.log('Session obtained:', data.session);
@@ -55,7 +55,7 @@ export default function LoginPage() {
       router.replace('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      setError(err instanceof Error ? err.message : '登录失败，请重试');
+      setError(err instanceof Error ? err.message : 'Login failed, please try again');
       setLoading(false);
     }
   };
@@ -78,10 +78,10 @@ export default function LoginPage() {
           {/* Header */}
           <header className="text-center mb-8 md:mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent">
-              欢迎回来
+              YouTube Subtitle Extractor
             </h1>
             <p className="text-secondary text-sm md:text-base">
-              登录您的账户以继续
+              Login to your account to continue
             </p>
           </header>
 
@@ -94,7 +94,7 @@ export default function LoginPage() {
                   htmlFor="email" 
                   className="block text-sm font-semibold mb-2 uppercase tracking-wide"
                 >
-                  电子邮箱
+                  Email
                 </label>
                 <input
                   id="email"
@@ -114,7 +114,7 @@ export default function LoginPage() {
                   htmlFor="password" 
                   className="block text-sm font-semibold mb-2 uppercase tracking-wide"
                 >
-                  密码
+                  Password
                 </label>
                 <input
                   id="password"
@@ -144,22 +144,22 @@ export default function LoginPage() {
                 {loading ? (
                   <span className="flex items-center justify-center gap-3">
                     <span className="loading-spinner" />
-                    登录中...
+                    Signing in...
                   </span>
                 ) : (
-                  '登录'
+                  'Sign In'
                 )}
               </button>
 
               {/* Register Link */}
               <div className="text-center mt-6">
                 <p className="text-secondary text-sm">
-                  还没有账户？{' '}
+                  Don't have an account?{' '}
                   <Link 
                     href="/register" 
                     className="font-bold bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
                   >
-                    注册新用户
+                    Sign Up
                   </Link>
                 </p>
               </div>

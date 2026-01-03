@@ -167,7 +167,7 @@ export default function DashboardPage() {
             onClick={handleLogout}
             className="glass-button text-sm py-2 px-4"
           >
-            登出
+            Sign Out
           </button>
         </div>
       </div>

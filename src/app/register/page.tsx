@@ -43,14 +43,14 @@ export default function RegisterPage() {
 
     // Validate password match
     if (password !== confirmPassword) {
-      setError('密码不匹配，请重新输入');
+      setError('Passwords do not match');
       setLoading(false);
       return;
     }
 
     // Validate password length
     if (password.length < 6) {
-      setError('密码长度至少为 6 个字符');
+      setError('Password must be at least 6 characters');
       setLoading(false);
       return;
     }
@@ -68,7 +68,7 @@ export default function RegisterPage() {
 
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '注册失败，请重试');
+      setError(err instanceof Error ? err.message : 'Registration failed, please try again');
     } finally {
       setLoading(false);
     }
@@ -92,10 +92,10 @@ export default function RegisterPage() {
           {/* Header */}
           <header className="text-center mb-8 md:mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent">
-              创建账户
+              Create Account
             </h1>
             <p className="text-secondary text-sm md:text-base">
-              注册新用户以开始使用
+              Sign up to get started
             </p>
           </header>
 
@@ -108,7 +108,7 @@ export default function RegisterPage() {
                   htmlFor="email" 
                   className="block text-sm font-semibold mb-2 uppercase tracking-wide"
                 >
-                  电子邮箱
+                  Email
                 </label>
                 <input
                   id="email"
@@ -128,14 +128,14 @@ export default function RegisterPage() {
                   htmlFor="password" 
                   className="block text-sm font-semibold mb-2 uppercase tracking-wide"
                 >
-                  密码
+                  Password
                 </label>
                 <input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="至少 6 个字符"
+                  placeholder="At least 6 characters"
                   className="neumorphic-input"
                   disabled={loading || success}
                   required
@@ -148,14 +148,14 @@ export default function RegisterPage() {
                   htmlFor="confirmPassword" 
                   className="block text-sm font-semibold mb-2 uppercase tracking-wide"
                 >
-                  确认密码
+                  Confirm Password
                 </label>
                 <input
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="再次输入密码"
+                  placeholder="Re-enter password"
                   className="neumorphic-input"
                   disabled={loading || success}
                   required
@@ -172,7 +172,7 @@ export default function RegisterPage() {
               {/* Success Message */}
               {success && (
                 <div className="message-box message-success">
-                  <p className="font-semibold">✓ 注册成功！正在跳转到登录页面...</p>
+                  <p className="font-semibold">✓ Registration successful! Redirecting to login...</p>
                 </div>
               )}
 
@@ -185,24 +185,24 @@ export default function RegisterPage() {
                 {loading ? (
                   <span className="flex items-center justify-center gap-3">
                     <span className="loading-spinner" />
-                    注册中...
+                    Signing up...
                   </span>
                 ) : success ? (
-                  '注册成功'
+                  'Success'
                 ) : (
-                  '注册'
+                  'Sign Up'
                 )}
               </button>
 
               {/* Login Link */}
               <div className="text-center mt-6">
                 <p className="text-secondary text-sm">
-                  已有账户？{' '}
+                  Already have an account?{' '}
                   <Link 
                     href="/login" 
                     className="font-bold bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
                   >
-                    返回登录
+                    Sign In
                   </Link>
                 </p>
               </div>
