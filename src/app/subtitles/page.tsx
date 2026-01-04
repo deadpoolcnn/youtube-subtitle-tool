@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import type { SubtitleRecord } from '@/types/types';
 import SubtitleDetailModal from '@/components/SubtitleDetailModal';
+import TypewriterText from '@/components/TypewriterText';
+import { useSystemTheme } from '@/hooks/useSystemTheme';
 
 export default function SubtitlesPage() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode } = useSystemTheme();
   const [userEmail, setUserEmail] = useState('');
   const [subtitles, setSubtitles] = useState<SubtitleRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,15 +37,6 @@ export default function SubtitlesPage() {
       fetchSubtitles();
     }
   }, [userEmail]);
-
-  // Dark mode toggle
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   useEffect(() => {
     if (success) {
@@ -125,7 +118,7 @@ export default function SubtitlesPage() {
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent">
-                  Saved Subtitles
+                  <TypewriterText text="Saved Subtitles" speed={150} delayBeforeRestart={3000} />
                 </h1>
                 <p className="text-secondary text-sm md:text-base">
                   Manage your saved subtitle files

@@ -4,24 +4,19 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import Link from 'next/link';
+import TypewriterText from '@/components/TypewriterText';
+import AnimatedBackground from '@/components/AnimatedBackground';
+import { useSystemTheme } from '@/hooks/useSystemTheme';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode } = useSystemTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Dark mode toggle
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
-  }, [darkMode]);
   // Check for confirmation error in URL
   useEffect(() => {
     const urlError = searchParams.get('error');
@@ -77,15 +72,19 @@ function LoginForm() {
 
   return (
     <>
+      {/* Animated Background */}
+      <AnimatedBackground />
+
+      {/* Dark Mode Toggle */}
       <div className="theme-toggle" onClick={() => setDarkMode(!darkMode)} role="button" aria-label="Toggle dark mode">
         <div className="theme-toggle-slider" />
       </div>
 
       <div className="min-h-screen flex items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-2xl">
           <header className="text-center mb-8 md:mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent">
-              YouTube Subtitle Extractor
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent md:whitespace-nowrap">
+              <TypewriterText text="YouTube Subtitle Extractor" speed={150} delayBeforeRestart={3000} />
             </h1>
             <p className="text-secondary text-sm md:text-base">
               Login to your account to continue

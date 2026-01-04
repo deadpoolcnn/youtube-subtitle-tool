@@ -7,6 +7,9 @@ import { useForm } from 'react-hook-form';
 import type { TranscriptSegment, Language } from '@/types/types';
 import SaveDialog from '@/components/SaveDialog';
 import UserDropdown from '@/components/UserDropdown';
+import TypewriterText from '@/components/TypewriterText';
+import AnimatedBackground from '@/components/AnimatedBackground';
+import { useSystemTheme } from '@/hooks/useSystemTheme';
 
 interface FormData {
   url: string;
@@ -15,7 +18,7 @@ interface FormData {
 }
 
 export default function DashboardPage() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode, resetToSystem } = useSystemTheme();
   const [userEmail, setUserEmail] = useState('');
   const [transcript, setTranscript] = useState<TranscriptSegment[]>([]);
   const [transcriptText, setTranscriptText] = useState('');
@@ -48,16 +51,8 @@ export default function DashboardPage() {
     getUser();
   }, []);
 
-  // Dark mode toggle
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
-  }, [darkMode]);
-
   const handleLogout = async () => {
+    resetToSystem(); // Reset theme to system preference
     await supabase.auth.signOut();
     router.push('/login');
     router.refresh();
@@ -190,6 +185,9 @@ export default function DashboardPage() {
 
   return (
     <>
+      {/* Animated Background */}
+      <AnimatedBackground />
+
       {/* Dark Mode Toggle */}
       <div 
         className="theme-toggle"
@@ -209,7 +207,7 @@ export default function DashboardPage() {
           {/* Header */}
           <header className="text-center mb-8 md:mb-12">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent">
-              YouTube Subtitle Extractor
+              <TypewriterText text="YouTube Subtitle Extractor" speed={150} delayBeforeRestart={3000} />
             </h1>
             <p className="text-secondary text-sm md:text-base">
               Extract and download video transcripts in multiple languages

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import type { TranscriptSegment, Language } from '@/types/types';
+import TypewriterText from '@/components/TypewriterText';
+import { useSystemTheme } from '@/hooks/useSystemTheme';
 
 interface FormData {
   url: string;
@@ -14,7 +16,7 @@ interface FormData {
 // test
 export default function Home() {
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode } = useSystemTheme();
   const [transcript, setTranscript] = useState<TranscriptSegment[]>([]);
   const [transcriptText, setTranscriptText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,15 +37,6 @@ export default function Home() {
   // useEffect(() => {
   //   router.replace('/login');
   // }, [router]);
-
-  // Dark mode toggle
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   const formatTime = (milliseconds: number): string => {
     const totalSeconds = Math.floor(milliseconds / 1000);
@@ -150,7 +143,7 @@ export default function Home() {
           {/* Header */}
           <header className="text-center mb-8 md:mb-12">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent">
-              YouTube Subtitle Extractor
+              <TypewriterText text="YouTube Subtitle Extractor" speed={150} delayBeforeRestart={3000} />
             </h1>
             <p className="text-secondary text-sm md:text-base">
               Extract and download video transcripts in multiple languages
