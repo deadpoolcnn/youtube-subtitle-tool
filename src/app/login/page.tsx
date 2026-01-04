@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [darkMode, setDarkMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,6 +22,13 @@ export default function LoginPage() {
       document.body.classList.remove('dark');
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    const urlError = searchParams.get('error');
+    if (urlError === 'confirmation_failed') {
+      setError('Email confirmation failed. Please try logging in again.');
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,9 +58,15 @@ export default function LoginPage() {
       console.log('Session obtained:', data.session);
       console.log('User:', data.user);
 
+      console.log('Refreshing router...');
+      router.refresh();
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Navigate to dashboard using replace to prevent back navigation to login
       console.log('Navigating to /dashboard...');
       router.replace('/dashboard');
+      // window.location.href = '/dashboard';
     } catch (err) {
       console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Login failed, please try again');

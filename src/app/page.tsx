@@ -32,9 +32,9 @@ export default function Home() {
   const plainText = watch('plainText');
 
   // Redirect to login page
-  useEffect(() => {
-    router.replace('/login');
-  }, [router]);
+  // useEffect(() => {
+  //   router.replace('/login');
+  // }, [router]);
 
   // Dark mode toggle
   useEffect(() => {
