@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { useForm } from 'react-hook-form';
 import type { TranscriptSegment, Language } from '@/types/types';
+import SaveDialog from '@/components/SaveDialog';
+import UserDropdown from '@/components/UserDropdown';
 
 interface FormData {
   url: string;
@@ -20,6 +22,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const router = useRouter();
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
@@ -145,6 +150,44 @@ export default function DashboardPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleSaveSubtitle = async (title: string) => {
+    setSaveLoading(true);
+    setError('');
+
+    try {
+      const text = plainText 
+        ? transcriptText
+        : transcript.map(segment => 
+            `[${formatTime(segment.offset)}] ${segment.text}`
+          ).join('\n');
+
+      const response = await fetch('/api/subtitles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content: text,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save subtitle');
+      }
+
+      setSaveSuccess(true);
+      setSaveDialogOpen(false);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save subtitle');
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
   return (
     <>
       {/* Dark Mode Toggle */}
@@ -157,20 +200,8 @@ export default function DashboardPage() {
         <div className="theme-toggle-slider" />
       </div>
 
-      {/* User Info & Logout */}
-      <div className="fixed top-4 left-4 z-50">
-        <div className="neumorphic-card p-4 flex items-center gap-4">
-          <span className="text-sm font-semibold text-secondary">
-            {userEmail}
-          </span>
-          <button
-            onClick={handleLogout}
-            className="glass-button text-sm py-2 px-4"
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
+      {/* User Dropdown */}
+      <UserDropdown userEmail={userEmail} onLogout={handleLogout} />
 
       {/* Main Container */}
       <div className="min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -284,10 +315,15 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Success Message */}
+            {/* Success Messages */}
             {copySuccess && (
               <div className="message-box message-success mt-6">
                 <p className="font-semibold">✓ Copied to clipboard!</p>
+              </div>
+            )}
+            {saveSuccess && (
+              <div className="message-box message-success mt-6">
+                <p className="font-semibold">✓ Subtitle saved successfully!</p>
               </div>
             )}
           </div>
@@ -314,6 +350,13 @@ export default function DashboardPage() {
                       type="button"
                     >
                       💾 Download
+                    </button>
+                    <button
+                      onClick={() => setSaveDialogOpen(true)}
+                      className="glass-button hover-lift"
+                      type="button"
+                    >
+                      💾 Save
                     </button>
                   </div>
                 </div>
@@ -347,6 +390,13 @@ export default function DashboardPage() {
                     >
                       💾 Download
                     </button>
+                    <button
+                      onClick={() => setSaveDialogOpen(true)}
+                      className="glass-button hover-lift"
+                      type="button"
+                    >
+                      💾 Save
+                    </button>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -374,6 +424,14 @@ export default function DashboardPage() {
           </footer>
         </div>
       </div>
+
+      {/* Save Dialog */}
+      <SaveDialog
+        isOpen={saveDialogOpen}
+        onClose={() => setSaveDialogOpen(false)}
+        onSave={handleSaveSubtitle}
+        loading={saveLoading}
+      />
     </>
   );
 }

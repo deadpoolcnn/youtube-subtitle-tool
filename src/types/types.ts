@@ -16,3 +16,17 @@ export interface TranscriptTextResponse {
 }
 
 export type Language = 'en' | 'zh-CN' | 'fr' | 'es' | 'ja' | 'de' | 'ko' | 'pt' | 'it' | 'ru' | 'ar';
+
+export interface SubtitleRecord {
+  id: number;
+  user_email: string;
+  title: string;
+  content: string;
+  created_at: string; // YYYY-MM-DD format
+}
+
+export interface SaveSubtitleRequest {
+  email: string;
+  title: string;
+  content: string;
+}

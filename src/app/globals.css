@@ -16,7 +16,7 @@
     --accent-hover-light: #ff8555;
     --shadow-light: rgba(0, 0, 0, 0.1);
     --shadow-inset-light: rgba(255, 255, 255, 0.8);
-    
+
     /* Dark Mode Colors */
     --bg-dark-start: #0f172a;
     --bg-dark-end: #1e293b;
@@ -27,7 +27,7 @@
     --accent-hover-dark: #60a5fa;
     --shadow-dark: rgba(0, 0, 0, 0.3);
     --shadow-inset-dark: rgba(255, 255, 255, 0.05);
-    
+
     /* Spacing System - 8px base */
     --spacing-xs: 0.5rem;
     --spacing-sm: 1rem;
@@ -35,13 +35,13 @@
     --spacing-lg: 2rem;
     --spacing-xl: 3rem;
     --spacing-2xl: 4rem;
-    
+
     /* Border Radius */
     --radius-sm: 0.5rem;
     --radius-md: 1rem;
     --radius-lg: 1.5rem;
     --radius-xl: 2rem;
-    
+
     /* Transitions */
     --transition-fast: 150ms ease-out;
     --transition-normal: 300ms ease-out;
@@ -53,19 +53,27 @@
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+      "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background var(--transition-normal);
-    background: linear-gradient(135deg, var(--bg-light-start) 0%, var(--bg-light-end) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--bg-light-start) 0%,
+      var(--bg-light-end) 100%
+    );
     color: var(--text-light);
     min-height: 100vh;
   }
 
   body.dark {
-    background: linear-gradient(135deg, var(--bg-dark-start) 0%, var(--bg-dark-end) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--bg-dark-start) 0%,
+      var(--bg-dark-end) 100%
+    );
     color: var(--text-dark);
   }
 }
@@ -79,16 +87,14 @@
     background: var(--card-light);
     border-radius: var(--radius-xl);
     padding: var(--spacing-xl);
-    box-shadow: 
-      12px 12px 24px var(--shadow-light),
+    box-shadow: 12px 12px 24px var(--shadow-light),
       -12px -12px 24px var(--shadow-inset-light);
     transition: all var(--transition-normal);
   }
 
   body.dark .neumorphic-card {
     background: var(--card-dark);
-    box-shadow: 
-      12px 12px 24px var(--shadow-dark),
+    box-shadow: 12px 12px 24px var(--shadow-dark),
       -12px -12px 24px var(--shadow-inset-dark);
   }
 
@@ -104,8 +110,7 @@
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: 1rem;
     color: var(--text-light);
-    box-shadow: 
-      inset 6px 6px 12px var(--shadow-light),
+    box-shadow: inset 6px 6px 12px var(--shadow-light),
       inset -6px -6px 12px var(--shadow-inset-light);
     transition: all var(--transition-fast);
     width: 100%;
@@ -114,22 +119,19 @@
   body.dark .neumorphic-input {
     background: var(--card-dark);
     color: var(--text-dark);
-    box-shadow: 
-      inset 6px 6px 12px var(--shadow-dark),
+    box-shadow: inset 6px 6px 12px var(--shadow-dark),
       inset -6px -6px 12px var(--shadow-inset-dark);
   }
 
   .neumorphic-input:focus {
     outline: none;
-    box-shadow: 
-      inset 4px 4px 8px var(--shadow-light),
+    box-shadow: inset 4px 4px 8px var(--shadow-light),
       inset -4px -4px 8px var(--shadow-inset-light),
       0 0 0 3px rgba(255, 107, 53, 0.2);
   }
 
   body.dark .neumorphic-input:focus {
-    box-shadow: 
-      inset 4px 4px 8px var(--shadow-dark),
+    box-shadow: inset 4px 4px 8px var(--shadow-dark),
       inset -4px -4px 8px var(--shadow-inset-dark),
       0 0 0 3px rgba(59, 130, 246, 0.2);
   }
@@ -169,13 +171,18 @@
   }
 
   .glass-button::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
     transition: left var(--transition-slow);
   }
 
@@ -206,22 +213,38 @@
 
   /* Primary Glass Button */
   .glass-button-primary {
-    background: linear-gradient(135deg, var(--accent-light), var(--accent-hover-light));
+    background: linear-gradient(
+      135deg,
+      var(--accent-light),
+      var(--accent-hover-light)
+    );
     color: white;
     border: none;
   }
 
   body.dark .glass-button-primary {
-    background: linear-gradient(135deg, var(--accent-dark), var(--accent-hover-dark));
+    background: linear-gradient(
+      135deg,
+      var(--accent-dark),
+      var(--accent-hover-dark)
+    );
   }
 
   .glass-button-primary:hover {
-    background: linear-gradient(135deg, var(--accent-hover-light), var(--accent-light));
+    background: linear-gradient(
+      135deg,
+      var(--accent-hover-light),
+      var(--accent-light)
+    );
     box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
   }
 
   body.dark .glass-button-primary:hover {
-    background: linear-gradient(135deg, var(--accent-hover-dark), var(--accent-dark));
+    background: linear-gradient(
+      135deg,
+      var(--accent-hover-dark),
+      var(--accent-dark)
+    );
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
   }
 
@@ -236,8 +259,7 @@
     height: 24px;
     border-radius: var(--radius-sm);
     background: var(--card-light);
-    box-shadow: 
-      inset 4px 4px 8px var(--shadow-light),
+    box-shadow: inset 4px 4px 8px var(--shadow-light),
       inset -4px -4px 8px var(--shadow-inset-light);
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -246,23 +268,30 @@
 
   body.dark .modern-checkbox {
     background: var(--card-dark);
-    box-shadow: 
-      inset 4px 4px 8px var(--shadow-dark),
+    box-shadow: inset 4px 4px 8px var(--shadow-dark),
       inset -4px -4px 8px var(--shadow-inset-dark);
   }
 
   .modern-checkbox:checked {
-    background: linear-gradient(135deg, var(--accent-light), var(--accent-hover-light));
+    background: linear-gradient(
+      135deg,
+      var(--accent-light),
+      var(--accent-hover-light)
+    );
     box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
   }
 
   body.dark .modern-checkbox:checked {
-    background: linear-gradient(135deg, var(--accent-dark), var(--accent-hover-dark));
+    background: linear-gradient(
+      135deg,
+      var(--accent-dark),
+      var(--accent-hover-dark)
+    );
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   }
 
   .modern-checkbox:checked::after {
-    content: '✓';
+    content: "✓";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -284,8 +313,7 @@
     height: 32px;
     background: var(--card-light);
     border-radius: 16px;
-    box-shadow: 
-      6px 6px 12px var(--shadow-light),
+    box-shadow: 6px 6px 12px var(--shadow-light),
       -6px -6px 12px var(--shadow-inset-light);
     cursor: pointer;
     transition: all var(--transition-normal);
@@ -295,8 +323,7 @@
 
   body.dark .theme-toggle {
     background: var(--card-dark);
-    box-shadow: 
-      6px 6px 12px var(--shadow-dark),
+    box-shadow: 6px 6px 12px var(--shadow-dark),
       -6px -6px 12px var(--shadow-inset-dark);
   }
 
@@ -306,14 +333,22 @@
     left: 4px;
     width: 24px;
     height: 24px;
-    background: linear-gradient(135deg, var(--accent-light), var(--accent-hover-light));
+    background: linear-gradient(
+      135deg,
+      var(--accent-light),
+      var(--accent-hover-light)
+    );
     border-radius: 50%;
     transition: all var(--transition-normal);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
   body.dark .theme-toggle-slider {
-    background: linear-gradient(135deg, var(--accent-dark), var(--accent-hover-dark));
+    background: linear-gradient(
+      135deg,
+      var(--accent-dark),
+      var(--accent-hover-dark)
+    );
     transform: translateX(28px);
   }
 
@@ -351,7 +386,7 @@
   }
 
   .transcript-timestamp {
-    font-family: 'Courier New', monospace;
+    font-family: "Courier New", monospace;
     font-size: 0.875rem;
     font-weight: 700;
     color: var(--accent-light);
@@ -382,7 +417,7 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
-    font-family: 'Courier New', monospace;
+    font-family: "Courier New", monospace;
     font-size: 0.95rem;
     line-height: 1.8;
     white-space: pre-wrap;
@@ -474,7 +509,8 @@
   }
 
   @keyframes pulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
     }
     50% {
@@ -496,4 +532,48 @@
   .pulse {
     animation: pulse 2s ease-in-out infinite;
   }
+}
+
+/* ========================================
+   DROPDOWN MENU STYLES
+   ======================================== */
+
+.dropdown-menu {
+  animation: slideIn 0.2s ease-out;
+  min-width: 200px;
+}
+
+/* ========================================
+   SUBTITLE TABLE STYLES
+   ======================================== */
+
+.subtitle-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.subtitle-table thead tr {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark .subtitle-table thead tr {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.subtitle-row {
+  transition: all var(--transition-fast);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.subtitle-row:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.01);
+}
+
+body.dark .subtitle-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.subtitle-row:last-child {
+  border-bottom: none;
 }
