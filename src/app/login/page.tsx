@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [darkMode, setDarkMode] = useState(false);
@@ -22,7 +22,7 @@ export default function LoginPage() {
       document.body.classList.remove('dark');
     }
   }, [darkMode]);
-
+  // Check for confirmation error in URL
   useEffect(() => {
     const urlError = searchParams.get('error');
     if (urlError === 'confirmation_failed') {
@@ -58,15 +58,16 @@ export default function LoginPage() {
       console.log('Session obtained:', data.session);
       console.log('User:', data.user);
 
+      // Refresh the router to update the session in middleware
       console.log('Refreshing router...');
       router.refresh();
-
+      
+      // Wait a short time to allow the session to sync
       await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Navigate to dashboard using replace to prevent back navigation to login
+      
+      // Navigate to dashboard
       console.log('Navigating to /dashboard...');
-      router.replace('/dashboard');
-      // window.location.href = '/dashboard';
+      router.push('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Login failed, please try again');
@@ -76,20 +77,12 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* Dark Mode Toggle */}
-      <div 
-        className="theme-toggle"
-        onClick={() => setDarkMode(!darkMode)}
-        role="button"
-        aria-label="Toggle dark mode"
-      >
+      <div className="theme-toggle" onClick={() => setDarkMode(!darkMode)} role="button" aria-label="Toggle dark mode">
         <div className="theme-toggle-slider" />
       </div>
 
-      {/* Main Container */}
       <div className="min-h-screen flex items-center justify-center p-4 md:p-8">
         <div className="w-full max-w-md">
-          {/* Header */}
           <header className="text-center mb-8 md:mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent">
               YouTube Subtitle Extractor
@@ -99,15 +92,10 @@ export default function LoginPage() {
             </p>
           </header>
 
-          {/* Login Card */}
           <div className="neumorphic-card">
             <form onSubmit={handleLogin} className="space-y-6">
-              {/* Email Input */}
               <div>
-                <label 
-                  htmlFor="email" 
-                  className="block text-sm font-semibold mb-2 uppercase tracking-wide"
-                >
+                <label htmlFor="email" className="block text-sm font-semibold mb-2 uppercase tracking-wide">
                   Email
                 </label>
                 <input
@@ -122,12 +110,8 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Password Input */}
               <div>
-                <label 
-                  htmlFor="password" 
-                  className="block text-sm font-semibold mb-2 uppercase tracking-wide"
-                >
+                <label htmlFor="password" className="block text-sm font-semibold mb-2 uppercase tracking-wide">
                   Password
                 </label>
                 <input
@@ -142,14 +126,12 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Error Message */}
               {error && (
                 <div className="message-box message-error">
                   <p className="font-semibold">⚠ {error}</p>
                 </div>
               )}
 
-              {/* Login Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -165,7 +147,6 @@ export default function LoginPage() {
                 )}
               </button>
 
-              {/* Register Link */}
               <div className="text-center mt-6">
                 <p className="text-secondary text-sm">
                   Don't have an account?{' '}
@@ -182,5 +163,13 @@ export default function LoginPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
