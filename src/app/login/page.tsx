@@ -12,8 +12,11 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { darkMode, setDarkMode } = useSystemTheme();
+  const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -25,7 +28,7 @@ function LoginForm() {
     }
   }, [searchParams]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -70,6 +73,54 @@ function LoginForm() {
     }
   };
 
+  const handleSendOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+        }
+      });
+
+      if (error) throw error;
+
+      setOtpSent(true);
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: otpCode,
+        type: 'email',
+      });
+
+      if (error) throw error;
+      if (!data.session) throw new Error('Verification successful but no session obtained');
+
+      router.refresh();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid OTP code');
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       {/* Animated Background */}
@@ -92,7 +143,42 @@ function LoginForm() {
           </header>
 
           <div className="neumorphic-card">
-            <form onSubmit={handleLogin} className="space-y-6">
+            {/* Login Method Toggle */}
+            <div className="flex gap-2 mb-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMethod('password');
+                  setOtpSent(false);
+                  setError('');
+                }}
+                className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                  loginMethod === 'password'
+                    ? 'glass-button-primary'
+                    : 'glass-button'
+                }`}
+              >
+                Password
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMethod('otp');
+                  setError('');
+                }}
+                className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                  loginMethod === 'otp'
+                    ? 'glass-button-primary'
+                    : 'glass-button'
+                }`}
+              >
+                OTP Code
+              </button>
+            </div>
+
+            {/* Password Login Form */}
+            {loginMethod === 'password' && (
+              <form onSubmit={handlePasswordLogin} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold mb-2 uppercase tracking-wide">
                   Email
@@ -145,19 +231,124 @@ function LoginForm() {
                   'Sign In'
                 )}
               </button>
-
-              <div className="text-center mt-6">
-                <p className="text-secondary text-sm">
-                  Don't have an account?{' '}
-                  <Link 
-                    href="/register" 
-                    className="font-bold bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
-                  >
-                    Sign Up
-                  </Link>
-                </p>
-              </div>
             </form>
+            )}
+
+            {/* OTP Login Form */}
+            {loginMethod === 'otp' && !otpSent && (
+              <form onSubmit={handleSendOTP} className="space-y-6">
+                <div>
+                  <label htmlFor="otp-email" className="block text-sm font-semibold mb-2 uppercase tracking-wide">
+                    Email
+                  </label>
+                  <input
+                    id="otp-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="neumorphic-input"
+                    disabled={loading}
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <div className="message-box message-error">
+                    <p className="font-semibold">⚠ {error}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="glass-button-primary w-full py-4 text-lg font-bold uppercase tracking-wider"
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <span className="loading-spinner" />
+                      Sending...
+                    </span>
+                  ) : (
+                    'Send OTP Code'
+                  )}
+                </button>
+              </form>
+            )}
+
+            {/* OTP Verification Form */}
+            {loginMethod === 'otp' && otpSent && (
+              <form onSubmit={handleVerifyOTP} className="space-y-6">
+                <div className="message-box message-success">
+                  <p className="font-semibold">✓ OTP code sent to {email}</p>
+                  <p className="text-sm mt-1">Please check your email and enter the code below</p>
+                </div>
+
+                <div>
+                  <label htmlFor="otp-code" className="block text-sm font-semibold mb-2 uppercase tracking-wide">
+                    OTP Code
+                  </label>
+                  <input
+                    id="otp-code"
+                    type="text"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    placeholder="Enter 8-digit code"
+                    className="neumorphic-input text-center text-2xl tracking-widest"
+                    maxLength={8}
+                    disabled={loading}
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <div className="message-box message-error">
+                    <p className="font-semibold">⚠ {error}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="glass-button-primary flex-1 py-4 text-lg font-bold uppercase tracking-wider"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-3">
+                        <span className="loading-spinner" />
+                        Verifying...
+                      </span>
+                    ) : (
+                      'Verify & Sign In'
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtpCode('');
+                      setError('');
+                    }}
+                    className="glass-button px-6"
+                    disabled={loading}
+                  >
+                    Back
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="text-center mt-6">
+              <p className="text-secondary text-sm">
+                Don't have an account?{' '}
+                <Link 
+                  href="/register" 
+                  className="font-bold bg-gradient-to-r from-orange-500 to-pink-500 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+                >
+                  Sign Up
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
