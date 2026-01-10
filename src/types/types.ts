@@ -30,3 +30,22 @@ export interface SaveSubtitleRequest {
   title: string;
   content: string;
 }
+
+export interface QuotaInfo {
+  hasApiKey: boolean;
+  hasQuota: boolean;
+  used: number;
+  limit: number;
+  remaining: number;
+}
+
+export interface ApiKeyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  quotaInfo?: {
+    used: number;
+    limit: number;
+    remaining: number;
+  };
+}

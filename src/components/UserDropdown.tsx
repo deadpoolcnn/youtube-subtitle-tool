@@ -36,7 +36,7 @@ export default function UserDropdown({ userEmail, onLogout }: UserDropdownProps)
   };
 
   return (
-    <div className="fixed top-4 left-4 z-50" ref={dropdownRef}>
+    <div className="relative z-50" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="neumorphic-card p-4 flex items-center gap-3 hover:transform hover:translateY(-1px) transition-all"
@@ -61,6 +61,15 @@ export default function UserDropdown({ userEmail, onLogout }: UserDropdownProps)
             className="w-full text-left px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all font-semibold text-sm"
           >
             📁 File List
+          </button>
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              router.push('/settings')
+            }}
+             className="w-full text-left px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all font-semibold text-sm"
+          >
+            ⚙️ Settings
           </button>
           <button
             onClick={() => {

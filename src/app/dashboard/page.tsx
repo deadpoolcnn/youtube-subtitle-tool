@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { useForm } from 'react-hook-form';
@@ -9,7 +9,9 @@ import SaveDialog from '@/components/SaveDialog';
 import UserDropdown from '@/components/UserDropdown';
 import TypewriterText from '@/components/TypewriterText';
 import AnimatedBackground from '@/components/AnimatedBackground';
+import QuotaDisplay, { QuotaDisplayRef } from '@/components/QuotaDisplay';
 import { useSystemTheme } from '@/hooks/useSystemTheme';
+import ApiKeyModal from '@/components/ApiKeyModal';
 
 interface FormData {
   url: string;
@@ -28,6 +30,9 @@ export default function DashboardPage() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [quotaInfo, setQuotaInfo] = useState<any>(null);
+  const quotaDisplayRef = useRef<QuotaDisplayRef>(null);
   const router = useRouter();
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
@@ -88,6 +93,13 @@ export default function DashboardPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
+        // Handle quota exceeded error specifically
+        console.log('Response Data:', responseData);
+        if (responseData.error === 'QUOTA_EXCEEDED') {
+          setQuotaInfo(responseData.quota);
+          setShowApiKeyModal(true);
+          throw new Error(responseData.message);
+        }
         throw new Error(responseData.error || 'Failed to fetch transcript');
       }
 
@@ -104,6 +116,9 @@ export default function DashboardPage() {
           setError('No transcript available for this video');
         }
       }
+
+      // Refresh quota display
+      quotaDisplayRef.current?.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -199,7 +214,10 @@ export default function DashboardPage() {
       </div>
 
       {/* User Dropdown */}
-      <UserDropdown userEmail={userEmail} onLogout={handleLogout} />
+      <div className="fixed top-6 left-6 flex items-center gap-4 z-50">
+        <UserDropdown userEmail={userEmail} onLogout={handleLogout} />
+        <QuotaDisplay ref={quotaDisplayRef} />
+      </div>
 
       {/* Main Container */}
       <div className="min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -422,6 +440,17 @@ export default function DashboardPage() {
           </footer>
         </div>
       </div>
+
+      {/* API Key Modal */}
+      <ApiKeyModal
+        isOpen={showApiKeyModal}
+        onClose={() => setShowApiKeyModal(false)}
+        onSuccess={() => {
+          setShowApiKeyModal(false);
+          window.location.reload();
+        }}
+        quotaInfo={quotaInfo}
+      />
 
       {/* Save Dialog */}
       <SaveDialog
