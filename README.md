@@ -7,7 +7,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20DB-green?style=for-the-badge&logo=supabase)
 
-A modern, feature-rich web application for extracting, managing, and downloading YouTube video subtitles with support for multiple languages.
+A modern, feature-rich web application for extracting, managing, and downloading YouTube video subtitles with support for multiple languages, quota management, and encrypted API key storage.
 
 [Features](#features) • [Demo](#demo) • [Installation](#installation) • [Tech Stack](#tech-stack) • [API](#api-documentation) • [Database](#database-schema)
 
@@ -24,6 +24,7 @@ A modern, feature-rich web application for extracting, managing, and downloading
 - [Getting Started](#getting-started)
 - [Database Schema](#database-schema)
 - [API Documentation](#api-documentation)
+- [Security](#security)
 - [UI/UX Design](#uiux-design)
 - [Environment Variables](#environment-variables)
 - [Project Structure](#project-structure)
@@ -34,7 +35,7 @@ A modern, feature-rich web application for extracting, managing, and downloading
 
 ## 🎯 Overview
 
-YouTube Subtitle Extractor is a full-stack web application that allows users to extract subtitles from YouTube videos in multiple languages. Built with Next.js 16 and powered by Supabase, it features a modern neumorphic/glassmorphic design with dark mode support and intelligent theme detection.
+YouTube Subtitle Extractor is a full-stack web application that allows users to extract subtitles from YouTube videos in multiple languages. Built with Next.js 16 and powered by Supabase, it features a modern neumorphic/glassmorphic design with dark mode support, intelligent quota management, and secure API key encryption.
 
 ### Key Highlights
 
@@ -46,6 +47,8 @@ YouTube Subtitle Extractor is a full-stack web application that allows users to 
 - 🌓 Auto-follow system dark mode with manual override
 - ⚡ Real-time typewriter animation effects
 - 🔐 Secure authentication with Supabase
+- 📊 Intelligent quota management system
+- 🔑 Encrypted API key storage (AES-256-CBC)
 - 📱 Fully responsive design
 
 ---
@@ -60,21 +63,41 @@ YouTube Subtitle Extractor is a full-stack web application that allows users to 
   - Support for 100+ languages
   - Auto-detect available subtitle languages
   - Choose between plain text or timestamped format
+  - Real-time extraction with loading states
 
 - **Subtitle Management**
 
   - Save extracted subtitles with custom titles
-  - View all saved subtitles in a organized table
+  - View all saved subtitles in an organized table
   - Preview subtitle content (first 20 characters)
   - View full subtitle details in modal
-  - Copy subtitles to clipboard
-  - Delete subtitles with confirmation
+  - Copy subtitles to clipboard with one click
+  - Delete subtitles with confirmation dialog
+  - Sort and filter saved subtitles
+
+- **Quota Management System**
+  - **Free Tier**: 5 extractions per month
+  - **Real-time Quota Display**: Visual progress bar showing usage
+  - **Monthly Reset**: Quota automatically resets on the 1st of each month
+  - **Unlimited Access**: Users with own API key get unlimited extractions
+  - **Quota Alerts**: Warning when quota is low or exhausted
+  - **Auto-refresh**: Quota updates in real-time after each extraction
+
+- **API Key Management**
+  - **Secure Storage**: AES-256-CBC encryption for API keys
+  - **Easy Setup**: Simple modal for adding YouTube API Key
+  - **Step-by-step Guide**: Instructions for obtaining API key
+  - **Key Privacy**: Keys never displayed in plain text
+  - **One-click Removal**: Easy API key deletion
+  - **Auto-detection**: System automatically uses user's key when available
 
 - **User Authentication**
   - Secure email/password authentication
+  - Password and OTP (One-Time Password) login options
   - User registration and login
   - Protected routes with middleware
   - Session management
+  - User profile management
   - Logout functionality
 
 ### UI/UX Features
@@ -90,10 +113,18 @@ YouTube Subtitle Extractor is a full-stack web application that allows users to 
 - **Theme System**
 
   - Auto-detect and follow system dark mode
-  - Manual theme toggle
+  - Manual theme toggle with smooth transition
   - Theme persists during login session
   - Resets to system preference on logout
   - Animated background with floating gradient orbs
+  - Color-coded status indicators
+
+- **Interactive Components**
+  - **Quota Display**: Live quota counter with visual progress
+  - **User Dropdown**: Quick access to settings and file list
+  - **API Key Modal**: Guided setup with validation
+  - **Save Dialog**: Custom title input with preview
+  - **Toast Notifications**: Success/error feedback
 
 - **Typewriter Effect**
 
@@ -154,6 +185,7 @@ _Beautiful dark mode with blue/purple gradient theme_
 | **Supabase**                      | 2.89.0  | Authentication & PostgreSQL database |
 | **@supabase/ssr**                 | 0.8.0   | Server-side rendering support        |
 | **@supabase/auth-helpers-nextjs** | 0.15.0  | Next.js auth integration             |
+| **Node.js Crypto**                | Built-in | AES-256-CBC encryption for API keys  |
 
 ### Development Tools
 
@@ -258,6 +290,16 @@ npm run start
 
 ## 🗄 Database Schema
 
+### User Profiles Table
+
+| Column              | Type      | Constraints                      | Description                          |
+| ------------------- | --------- | -------------------------------- | ------------------------------------ |
+| `user_id`           | UUID      | PRIMARY KEY                      | Foreign key to Supabase auth.users   |
+| `usage_count`       | INTEGER   | NOT NULL, DEFAULT 0              | Number of extractions this month     |
+| `last_reset_date`   | DATE      | DEFAULT CURRENT_DATE             | Date of last quota reset             |
+| `youtube_api_key`   | TEXT      |                                  | Encrypted YouTube API Key (AES-256)  |
+| `created_at`        | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Account creation timestamp        |
+
 ### Subtitles Table
 
 | Column       | Type      | Constraints                    | Description                         |
@@ -271,14 +313,21 @@ npm run start
 ### Indexes
 
 - `idx_subtitles_user_id` - B-tree index on `user_id` for faster user-specific queries
+- `user_profiles_pkey` - Primary key index on `user_profiles.user_id`
 
 ### Row Level Security (RLS)
 
-All subtitle operations are protected by RLS policies:
+All operations are protected by RLS policies:
 
+**Subtitles Table:**
 - Users can only view their own subtitles
 - Users can only insert subtitles for themselves
 - Users can only delete their own subtitles
+
+**User Profiles Table:**
+- Users can only view their own profile
+- Users can insert their own profile on first access
+- Users can only update their own profile data
 
 ---
 
@@ -454,8 +503,165 @@ Extract subtitles from a YouTube video.
 
 - `200` - Success
 - `400` - Bad request (invalid URL)
+- `402` - Quota exceeded (QUOTA_EXCEEDED error)
 - `404` - Subtitles not available
 - `500` - Server error
+
+---
+
+#### 5. Get User Quota
+
+**GET** `/api/user/quota`
+
+Get current user's quota status and usage information.
+
+**Headers:**
+
+```
+Cookie: sb-<project-ref>-auth-token=<session-token>
+```
+
+**Response:**
+
+```json
+{
+  "hasApiKey": false,
+  "hasQuota": true,
+  "used": 3,
+  "limit": 5,
+  "remaining": 2
+}
+```
+
+**Response Fields:**
+- `hasApiKey` (boolean) - Whether user has configured their own API key
+- `hasQuota` (boolean) - Whether user has remaining quota
+- `used` (number) - Number of extractions used this month
+- `limit` (number) - Total quota limit (5 for free tier, null with API key)
+- `remaining` (number) - Remaining extractions (calculated: limit - used)
+
+**Status Codes:**
+
+- `200` - Success
+- `401` - Unauthorized
+- `500` - Server error
+
+---
+
+#### 6. Manage API Key
+
+**POST** `/api/user/api-key`
+
+Save or update user's YouTube API key (encrypted with AES-256-CBC).
+
+**Headers:**
+
+```
+Content-Type: application/json
+Cookie: sb-<project-ref>-auth-token=<session-token>
+```
+
+**Request Body:**
+
+```json
+{
+  "apiKey": "AIzaSyD..."
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "API key saved successfully"
+}
+```
+
+**Status Codes:**
+
+- `200` - Success
+- `400` - Bad request (invalid or missing API key)
+- `401` - Unauthorized
+- `500` - Server error
+
+---
+
+**GET** `/api/user/api-key`
+
+Check if user has an API key configured.
+
+**Response:**
+
+```json
+{
+  "hasApiKey": true
+}
+```
+
+**Status Codes:**
+
+- `200` - Success
+- `401` - Unauthorized
+- `500` - Server error
+
+---
+
+**DELETE** `/api/user/api-key`
+
+Remove user's saved API key.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "API key removed successfully"
+}
+```
+
+**Status Codes:**
+
+- `200` - Success
+- `401` - Unauthorized
+- `500` - Server error
+
+---
+
+## 🔒 Security
+
+### API Key Encryption
+
+User API keys are protected with **application-layer encryption** using industry-standard AES-256-CBC:
+
+- **Algorithm:** AES-256-CBC (Advanced Encryption Standard)
+- **Key Derivation:** SHA-256 hash of SECRET_KEY environment variable
+- **Initialization Vector:** Random 16-byte IV for each encryption
+- **Storage Format:** `base64(IV):base64(encrypted_data)`
+- **Decryption:** Automatic when retrieving API key for YouTube API calls
+
+**Benefits:**
+- Keys never stored in plain text
+- Each encryption uses unique random IV
+- Encryption happens in application layer (portable, not database-dependent)
+- Compatible with future KMS integration
+- Follows security best practices for sensitive data
+
+### Authentication
+
+- **Email Confirmation:** Users must confirm email via Supabase link
+- **Session Management:** Secure session cookies with httpOnly flag
+- **Row Level Security:** Database-level access control
+- **Protected Routes:** Middleware intercepts unauthorized requests
+- **OTP Login:** Optional one-time password authentication
+
+### Quota System
+
+- **Free Tier:** 5 extractions per month per user
+- **Monthly Reset:** Automatic reset on 1st of each month
+- **Abuse Prevention:** Rate limiting via quota tracking
+- **Transparent:** Real-time quota display for users
+- **Upgrade Path:** Users can add own API key for unlimited access
 
 ---
 
@@ -526,6 +732,12 @@ Create a `.env.local` file with the following variables:
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+# Encryption (for API key storage)
+SECRET_KEY=your-secret-encryption-key-min-32-chars
+
+# YouTube API (optional - for shared quota pool)
+YOUTUBE_API_KEY=your-youtube-api-key
 ```
 
 ### Getting Supabase Credentials
@@ -534,6 +746,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 2. Select your project
 3. Navigate to Settings → API
 4. Copy the Project URL and anon/public key
+
+### Generating SECRET_KEY
+
+The SECRET_KEY is used for encrypting user API keys. Generate a secure random string:
+
+```bash
+# Using Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+# Or use any password generator with min 32 characters
+```
 
 ---
 
@@ -544,17 +767,25 @@ youtube-subtitle-tool/
 ├── src/
 │   ├── app/                      # Next.js App Router
 │   │   ├── api/                  # API routes
+│   │   │   ├── auth/
+│   │   │   │   └── confirm/      # Email confirmation callback
 │   │   │   ├── subtitles/        # Subtitle CRUD endpoints
-│   │   │   └── transcript/       # YouTube transcript extraction
+│   │   │   ├── transcript/       # YouTube transcript extraction
+│   │   │   └── user/             # User-specific endpoints
+│   │   │       ├── api-key/      # API key management
+│   │   │       └── quota/        # Quota information
 │   │   ├── dashboard/            # Dashboard page
 │   │   ├── login/                # Login page
 │   │   ├── register/             # Registration page
+│   │   ├── settings/             # Settings page
 │   │   ├── subtitles/            # Subtitle list page
 │   │   ├── globals.css           # Global styles
 │   │   ├── layout.tsx            # Root layout
 │   │   └── page.tsx              # Home page
 │   ├── components/               # React components
 │   │   ├── AnimatedBackground.tsx
+│   │   ├── ApiKeyModal.tsx       # API key input modal
+│   │   ├── QuotaDisplay.tsx      # Quota counter widget
 │   │   ├── SaveDialog.tsx
 │   │   ├── SubtitleDetailModal.tsx
 │   │   ├── TypewriterText.tsx
@@ -562,6 +793,8 @@ youtube-subtitle-tool/
 │   ├── hooks/                    # Custom React hooks
 │   │   └── useSystemTheme.ts     # Theme management hook
 │   ├── lib/                      # Utility libraries
+│   │   ├── crypto.ts             # AES-256-CBC encryption
+│   │   ├── quota.ts              # Quota checking logic
 │   │   ├── supabase.ts           # Supabase client factory
 │   │   └── supabase-client.ts    # Browser Supabase client
 │   ├── types/                    # TypeScript types
